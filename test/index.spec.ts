@@ -11,8 +11,8 @@ import worker, { sorries } from "../src/index";
 // `Request` to pass to `worker.fetch()`.
 const IncomingRequest = Request<unknown, IncomingRequestCfProperties>;
 
-async function callWorker(): Promise<Response> {
-	const request = new IncomingRequest("http://example.com");
+async function callWorker(path?: string): Promise<Response> {
+	const request = new IncomingRequest(`http://example.com/${path || ""}`);
 	// Create an empty context to pass to `worker.fetch()`.
 	const ctx = createExecutionContext();
 	const response = await worker.fetch(request, env, ctx);
@@ -112,4 +112,9 @@ describe("Sorry worker response contract", () => {
 		const body = await (await callWorker()).text();
 		expect(body.length).toBeGreaterThan(0);
 	});
+
+    it("responds with status 404 on non root path", async () => {
+        const response = await callWorker("somewhere");
+        expect(response.status).toBe(404);
+    });
 });
