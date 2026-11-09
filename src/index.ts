@@ -204,8 +204,22 @@ export const sorries = [
 ]
 
 export default {
-  fetch: () =>
-    new Response(sorries[Math.floor(Math.random() * sorries.length)], {
-      headers: { "content-type": "text/plain; charset=utf-8" },
-    }),
+    fetch(request) {
+        const url = new URL(request.url);
+
+        if (url.pathname !== "/") {
+            return new Response(null, {status: 404});
+        }
+
+        if (request.method != "GET" && request.method != "HEAD") {
+            return new Response(null, { status: 405, headers: { allow: "GET, HEAD" } });
+        }
+
+        return new Response(sorries[Math.floor(Math.random() * sorries.length)], {
+            headers: {
+                "content-type": "text/plain; charset=utf-8",
+                "cache-control": "no-store",
+            },
+        });
+    },
 };
